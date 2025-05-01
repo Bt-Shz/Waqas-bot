@@ -1,0 +1,4 @@
+question : is using too much user_data[''] bad?
+it seems like 1 data is  for every user.  Isn't that too much?
+should I store in both db and user_data or is the user_dats enough (in case the above is true)
+
