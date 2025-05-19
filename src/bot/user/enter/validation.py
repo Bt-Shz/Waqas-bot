@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import bot.core.states as states
-from database.database_connection import client
+from database.connection import client
 from json import loads
 
 

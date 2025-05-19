@@ -24,7 +24,7 @@ async def counting(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("This isn't a number. Try again.")
         return
 
-    from database.database_connection import client
+    from database.connection import client
 
     qnty = int(qnty)
     if qnty <= 0:

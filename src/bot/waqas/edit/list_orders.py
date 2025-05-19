@@ -15,7 +15,7 @@ from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def list_locations(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from database.database_connection import client
+    from database.connection import client
 
     # gt : 0 -> users who have ordered at least something
 

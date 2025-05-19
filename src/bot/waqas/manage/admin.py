@@ -3,7 +3,8 @@ from telegram.ext import ContextTypes
 from datetime import datetime
 
 
-from database.database_connection import client
+from database.connection import client  # Keep for Users collection access
+from database.product_services import get_product_info_by_variant_id
 
 
 async def begin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -31,33 +32,39 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("You have already ended the list.")
     else:
 
-        from bson import ObjectId
+        from bson import (
+            ObjectId,
+        )  # Keep if other ObjectId uses exist, otherwise can be removed if only for productID
 
         context.bot_data["list_state"] = False
         ids = client.OnlineStore.Users.find(
             {"TotalP": {"$gt": 0}}, {"_id": 1, "TotalP": 1, "Orders": 1}
         )
-        for id in ids:
+        for id_data in ids:  # Renamed id to id_data to avoid conflict with built-in id
             text = "Ordering period is over. Delivery is incoming. You have ordered : "
 
-            for count, order in enumerate(id.get("Orders"), start=1):
-
-                product_info = client.OnlineStore.Products.find_one(
-                    {"Variants": {"$elemMatch": {"vID": order.get("ProductID")}}},
-                    {"Name": 1, "Variants.$": 1},
+            for count, order in enumerate(id_data.get("Orders"), start=1):
+                product_variant_info = get_product_info_by_variant_id(
+                    str(order.get("ProductID"))
                 )
-                text_part = f"{count}. {product_info.get("Name")}[{product_info.get("Variants")[0].get("VName")}]"
-                text += f"{text_part} : price = {product_info.get("Variants")[0].get("SellP")}$ x {order.get("Qnty")} = {product_info.get("Variants")[0].get("SellP") * order.get("Qnty")}$ \n"
 
-            text += f"Your total is {id['TotalP']}HK$. After receiving your items, please pay to THERES SOME INFORMATION PALET, and send the proof (screenshot)"
+                if product_variant_info:
+                    product_name = product_variant_info.get("Name")
+                    variant_info = product_variant_info.get("Variant")
+                    text_part = f"{count}. {product_name}[{variant_info.get('VName')}]"
+                    text += f"{text_part} : price = {variant_info.get('SellP')}$ x {order.get('Qnty')} = {variant_info.get('SellP') * order.get('Qnty')}$ \n"
+                else:
+                    text += f"{count}. [Product not found for ID: {order.get('ProductID')}]\n"
+
+            text += f"Your total is {id_data['TotalP']}HK$. After receiving your items, please pay to THERES SOME INFORMATION PALET, and send the proof (screenshot)"
             from telegram import ReplyKeyboardRemove
 
             await context.bot.send_message(
-                chat_id=id["_id"], text=text, reply_markup=ReplyKeyboardRemove()
+                chat_id=id_data["_id"], text=text, reply_markup=ReplyKeyboardRemove()
             )
             import main as main
 
-            main.debted.add_user_ids(int(id["_id"]))
+            main.debted.add_user_ids(int(id_data["_id"]))
 
             # ! make it so that only admins saw this.
             # ! make the admins array or something like that.

@@ -7,11 +7,12 @@ from telegram import (
 )
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
+from database.product_services import get_product_info_by_variant_id
 
 
 # username = update.message.from_user.username
 async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from database.database_connection import client
+    from database.connection import client
 
     orders = client.OnlineStore.Users.find_one(
         {"_id": update.effective_user.id},
@@ -30,28 +31,32 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = "You have ordered : \n"
     buttons = []
     for count, order in enumerate(orders.get("Orders"), start=1):
-
-        product_info = client.OnlineStore.Products.find_one(
-            {"Variants": {"$elemMatch": {"vID": order.get("ProductID")}}},
-            {"Name": 1, "Variants.$": 1},
+        product_variant_info = get_product_info_by_variant_id(
+            str(order.get("ProductID"))
         )
-        var = product_info.get("Variants")[0]
-        text_part = f"{count}. {product_info.get('Name')}[{var.get('VName')}]"
-        text += f"{text_part} : price = {var.get('SellP')}$ x {order.get('Qnty')} = {var.get('SellP') * order.get('Qnty')}$ \n"
 
-        buttons.append(
-            [
-                InlineKeyboardButton(
-                    text_part,
-                    callback_data=create_callback_data(
-                        CallbackType.EDIT_CHOICE,
-                        product_id=str(order.get("ProductID")),
-                        sell_price=float(var.get("SellP")),
-                        quantity=order.get("Qnty"),
-                    ),
-                )
-            ]
-        )
+        if product_variant_info:
+            product_name = product_variant_info.get("Name")
+            var = product_variant_info.get("Variant")
+            text_part = f"{count}. {product_name}[{var.get('VName')}]"
+            text += f"{text_part} : price = {var.get('SellP')}$ x {order.get('Qnty')} = {var.get('SellP') * order.get('Qnty')}$ \n"
+
+            buttons.append(
+                [
+                    InlineKeyboardButton(
+                        text_part,
+                        callback_data=create_callback_data(
+                            CallbackType.EDIT_CHOICE,
+                            product_id=str(order.get("ProductID")),
+                            sell_price=float(var.get("SellP")),
+                            quantity=order.get("Qnty"),
+                        ),
+                    )
+                ]
+            )
+        else:
+            text += f"{count}. [Product not found for ID: {order.get('ProductID')}]\n"
+
     text += f"Total price : {orders.get('TotalP')}"
     await update.message.reply_text(
         text=text,

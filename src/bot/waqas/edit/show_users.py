@@ -1,10 +1,11 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
+from database.product_services import get_product_info_by_variant_id
 
 
 async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from database.database_connection import client
+    from database.connection import client
 
     # * The location_name is now fetched from context.callback_data
     # 0 -> Ma On Shan (example, actual value comes from callback)
@@ -41,11 +42,15 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             text += f"{user_info.get('Name')} {user_info.get('TotalP')} : \n"
             for order in user_info.get("Orders"):
-                product_info = client.OnlineStore.Products.find_one(
-                    {"Variants": {"$elemMatch": {"vID": order.get("ProductID")}}},
-                    {"Name": 1, "Variants.$": 1},
+                product_variant_info = get_product_info_by_variant_id(
+                    str(order.get("ProductID"))
                 )
-                text += f"- {product_info.get('Name')}[{product_info.get('Variants')[0].get('VName')}] : price = {product_info.get('Variants')[0].get('SellP')}$ x {order.get('Qnty')} = {product_info.get('Variants')[0].get('SellP') * order.get('Qnty')}$ \n"
+                if product_variant_info:
+                    product_name = product_variant_info.get("Name")
+                    variant_info = product_variant_info.get("Variant")
+                    text += f"- {product_name}[{variant_info.get('VName')}] : price = {variant_info.get('SellP')}$ x {order.get('Qnty')} = {variant_info.get('SellP') * order.get('Qnty')}$ \n"
+                else:
+                    text += f"- [Product not found for ID: {order.get('ProductID')}]\n"
 
         await update.callback_query.message.reply_text(
             text=text, reply_markup=InlineKeyboardMarkup(buttons)

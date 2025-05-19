@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
+from database.product_services import search_products_by_name
 
 
 async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -13,14 +14,9 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(update.message.text) < 4:
         await update.message.reply_text("Too short. Try again.")
         return
-    from database.database_connection import client
-    from json import dumps
 
-    products = list(
-        client.OnlineStore.Products.find(
-            {"Name": {"$regex": update.message.text, "$options": "i"}}
-        )
-    )  # Case-insensitive search
+    # Use the service function to search for products
+    products = search_products_by_name(update.message.text)
 
     if not products:
         await update.message.reply_text("No products found. Try different keywords.")
@@ -38,7 +34,7 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         f"{entry.get('VName')} : {entry.get('SellP')}",
                         callback_data=create_callback_data(
                             CallbackType.CHOOSE_VARIANT,
-                            variant_id=entry.get("vID"),
+                            variant_id=entry.get("vID"),  # vID is already a string
                         ),
                     )
                 ]
@@ -46,15 +42,13 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # choose the product and then its variants
         else:
             # Multiple variants - show just the product name
-            # Convert ObjectIds in variants to str for JSON serialization
-
             buttons.append(
                 [
                     InlineKeyboardButton(
                         f"{product.get('Name')}",
                         callback_data=create_callback_data(
                             CallbackType.ADD_CHOICE,
-                            product_id=str(product.get("_id")),
+                            product_id=product.get("_id"),  # _id is already a string
                         ),
                     )
                 ]

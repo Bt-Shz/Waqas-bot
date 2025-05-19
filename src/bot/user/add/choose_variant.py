@@ -1,6 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
+from database.product_services import get_product_with_variants
 
 
 async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,16 +15,13 @@ async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return -1
 
-    from bson import ObjectId
-    from database.database_connection import client
-
     name = context.callback_data.get("product_name")
     pID_str = context.callback_data.get("product_id")
-    pID = ObjectId(pID_str)
+
     buttons = []
-    for variant in client.OnlineStore.Products.find_one({"_id": pID}, {"Variants": 1})[
-        "Variants"
-    ]:
+    variants = get_product_with_variants(pID_str)
+
+    for variant in variants:
         buttons.append(
             [
                 InlineKeyboardButton(

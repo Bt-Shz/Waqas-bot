@@ -19,7 +19,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         text = update.message.text
         if text.isdigit():
-            from database.database_connection import client
+            from database.connection import client
             from bson import ObjectId
 
             text = int(text)  # qnty

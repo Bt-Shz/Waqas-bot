@@ -1,4 +1,4 @@
-import database.database_connection as client
+import database.connection as client
 from dotenv import load_dotenv
 import os
 from telegram.ext import Application
@@ -13,10 +13,9 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
 
-# * all the constants used in the project
-
 
 def init_constants():
+
     users = client.client.OnlineStore.Users.find({}, {"_id": 1})
 
     for user in users:

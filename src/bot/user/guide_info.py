@@ -1,7 +1,7 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from database.database_connection import client
+from database.connection import client
 
 
 async def enter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
