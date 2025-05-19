@@ -9,7 +9,7 @@ from bot.user.add import add_choice, add_conversation, search, choose_variant
 from bot.user.add import count_additions
 from bot.user.edit import count_changes, edit_conversation, edit_choise
 from bot.waqas.manage import admin
-from bot import guide_info
+from bot.user import guide_info
 from bot.waqas.edit import (
     update,
     quantity,
@@ -68,6 +68,7 @@ handlers = [
         },
         fallbacks=[],
     ),
+     
     ConversationHandler(
         entry_points=[
             CommandHandler(

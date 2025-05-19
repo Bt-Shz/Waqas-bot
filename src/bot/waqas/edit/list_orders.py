@@ -33,6 +33,6 @@ async def list_locations(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
-    from bot.bot_handlers import SHOW_USERS
+    from bot.core.bot_handlers import SHOW_USERS
 
     return SHOW_USERS

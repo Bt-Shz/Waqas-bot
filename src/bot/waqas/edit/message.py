@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 import os
 from telegram import Bot
 
-from main import bot
+from bot.core.main import bot
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):

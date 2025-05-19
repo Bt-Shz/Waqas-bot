@@ -5,7 +5,7 @@ from database.database_connection import client
 
 
 async def enter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    from bot.bot_handlers import PHONE_NUMBER
+    from bot.core.bot_handlers import PHONE_NUMBER
   
 
     await update.message.reply_text(

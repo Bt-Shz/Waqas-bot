@@ -12,7 +12,7 @@ from telegram.ext import (
 
 
 async def edit_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from bot.bot_handlers import EDITING
+    from bot.core.bot_handlers import EDITING
 
     await update.callback_query.answer()
 

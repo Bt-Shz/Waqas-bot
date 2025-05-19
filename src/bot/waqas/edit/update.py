@@ -18,7 +18,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
     if text.isdigit():
-        from main import bot
+        from bot.core.main import bot
         from database.database_connection import client
         from bson import ObjectId
 
@@ -79,7 +79,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             # is putting the below 2 outside of the if statements - correct?
 
-        from bot.bot_handlers import SEND_MESSAGE
+        from bot.core.bot_handlers import SEND_MESSAGE
 
         return SEND_MESSAGE
     else:

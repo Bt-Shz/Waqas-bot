@@ -4,7 +4,7 @@ from database.database_connection import client
 
 
 async def phone_callback(update: Update, context: ContextTypes):
-    from bot.bot_handlers import NAME
+    from bot.core.bot_handlers import NAME
 
     context.user_data["phone"] = update.message.text  # this is the phone number
 

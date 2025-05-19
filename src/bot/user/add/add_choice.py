@@ -12,7 +12,7 @@ async def choosing(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "stopped the list creation process. Wait for the next time"
         )
         return -1
-    from bot.bot_handlers import COUNTING
+    from bot.core.bot_handlers import COUNTING
 
     context.user_data["chosen_order"] = update.callback_query.data[1:]
     # why? Cause the first char = pattern for CQH

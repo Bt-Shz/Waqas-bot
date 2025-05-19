@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 
 async def list_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from bot.bot_handlers import SEARCHING
+    from bot.core.bot_handlers import SEARCHING
 
     if context.bot_data.get("list_state"):
 

@@ -61,6 +61,6 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
-    from ...bot_handlers import CHOOSING
+    from ...core.bot_handlers import CHOOSING
 
     return CHOOSING

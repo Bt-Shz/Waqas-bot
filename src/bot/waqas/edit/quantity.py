@@ -24,6 +24,6 @@ async def edit_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.callback_query.message.reply_text(f"Input the quantity")
 
-    from bot.bot_handlers import QUANTITY
+    from bot.core.bot_handlers import QUANTITY
 
     return QUANTITY

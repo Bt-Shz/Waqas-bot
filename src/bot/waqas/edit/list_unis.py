@@ -26,6 +26,6 @@ async def list_unis(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
-    from bot.bot_handlers import SHOW_LOCATIONS
+    from bot.core.bot_handlers import SHOW_LOCATIONS
 
     return SHOW_LOCATIONS

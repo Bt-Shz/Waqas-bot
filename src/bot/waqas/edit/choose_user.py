@@ -41,6 +41,6 @@ async def choose_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     await update.callback_query.message.reply_text(
         text=text, reply_markup=InlineKeyboardMarkup(buttons)
     )
-    from bot.bot_handlers import CHOOSE_ITEM
+    from bot.core.bot_handlers import CHOOSE_ITEM
 
     return CHOOSE_ITEM

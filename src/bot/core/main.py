@@ -26,7 +26,7 @@ def init_constants():
 
 def main():
     init_constants()
-    from bot.bot_handlers import handlers
+    from bot.core.bot_handlers import handlers
 
     print("starting the server")
     app = Application.builder().token(TOKEN).build()

@@ -4,7 +4,7 @@ from telegram.ext import ContextTypes
 
 async def name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from states import verified_users, admins_list
-    from main import bot
+    from bot.core.main import bot
 
     buttons = [
         [  # [[states]]
@@ -27,6 +27,6 @@ async def name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="you were not in the whatsapp group. Sorry, you would have to wait. Next, input your university ",
             reply_markup=InlineKeyboardMarkup(buttons),
         )
-    from bot.bot_handlers import UNI
+    from bot.core.bot_handlers import UNI
 
     return UNI

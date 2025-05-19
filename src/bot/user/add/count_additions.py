@@ -11,7 +11,7 @@ from bson import ObjectId
 
 
 async def counting(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from bot.bot_handlers import SEARCHING
+    from bot.core.bot_handlers import SEARCHING
 
     if not context.bot_data.get("list_state"):
         await update.message.reply_text(

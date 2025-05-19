@@ -26,7 +26,7 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ),
             ],
         ]
-        from main import bot
+        from bot.core.main import bot
         from states import admins_list
 
         if update.message.photo:

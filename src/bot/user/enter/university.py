@@ -9,7 +9,7 @@ import states
 # 6
 async def location_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from states import uniLocations
-    from bot.bot_handlers import LOCATION
+    from bot.core.bot_handlers import LOCATION
 
     # the ones who don't need to specify the location;
     if (

@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 
 async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from bot.bot_handlers import SEARCHING
+    from bot.core.bot_handlers import SEARCHING
 
     await update.callback_query.answer()
 

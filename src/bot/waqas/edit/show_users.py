@@ -45,6 +45,6 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text=text, reply_markup=InlineKeyboardMarkup(buttons)
         )
         await update.callback_query.answer()
-        from bot.bot_handlers import CHOOSE_USER
+        from bot.core.bot_handlers import CHOOSE_USER
 
         return CHOOSE_USER
