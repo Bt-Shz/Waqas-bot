@@ -15,7 +15,7 @@ async def list_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await show_list(update, context)
 
     else:
-        from states import debted
+        from bot.core.states import debted
 
         await update.message.reply_text("Waqas hasn't started list edition yet")
         return -1

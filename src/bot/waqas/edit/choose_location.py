@@ -11,7 +11,7 @@ from telegram.ext import ContextTypes
 async def choose_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # gt : 0 -> users who have ordered at least something
-    from states import uniLocations
+    from bot.core.states import uniLocations
 
     buttons = []
     for location in uniLocations[int(update.callback_query.data[1])]:

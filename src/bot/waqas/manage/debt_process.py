@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-import states
+import bot.core.states as states
 from database.database_connection import client
 
 
@@ -27,7 +27,7 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ],
         ]
         from bot.core.main import bot
-        from states import admins_list
+        from bot.core.states import admins_list
 
         if update.message.photo:
             # Get the file ID of the highest resolution photo

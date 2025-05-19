@@ -13,7 +13,7 @@ async def phone_callback(update: Update, context: ContextTypes):
             "Please enter a valid phone number without any special characters."
         )
     else:
-        from states import unregistered_verified
+        from bot.core.states import unregistered_verified
 
         if int(update.message.text) in unregistered_verified:
             await update.message.reply_text(

@@ -9,7 +9,7 @@ async def list_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 0 -> Ma On Shan
     # 1 -> kowloong Tong, etc
 
-    from states import uniLocations
+    from bot.core.states import uniLocations
 
     context.user_data["Orders"] = list(
         client.OnlineStore.Users.find(

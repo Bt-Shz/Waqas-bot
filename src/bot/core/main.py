@@ -4,7 +4,7 @@ import os
 from telegram.ext import Application
 from telegram import Bot
 from telegram.ext import filters
-from states import (
+from bot.core.states import (
     debted,
     restricted,
     verified_users,

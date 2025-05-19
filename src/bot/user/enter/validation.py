@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-import states
+import bot.core.states as states
 from database.database_connection import client
 
 
@@ -37,6 +37,6 @@ async def entering_validation(update: Update, context: ContextTypes.DEFAULT_TYPE
             chat_id=int(data[3]),
             text="You got regged!",
         )
-        import states
+        import bot.core.states as states
 
         states.verified_users.add_user_ids(int(data[4]))

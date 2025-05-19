@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 
 async def name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from states import verified_users, admins_list
+    from bot.core.states import verified_users, admins_list
     from bot.core.main import bot
 
     buttons = [

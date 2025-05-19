@@ -19,7 +19,7 @@ from bot.waqas.edit import (
     list_unis,
     choose_location,
 )
-from states import (
+from bot.core.states import (
     admins_list,
     debted,
     restricted,

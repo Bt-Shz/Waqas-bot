@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 from database.database_connection import client
 
-import states
+import bot.core.states as states
 
 from . import final_processing
 

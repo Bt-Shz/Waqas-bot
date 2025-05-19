@@ -3,12 +3,12 @@ from telegram.ext import ContextTypes
 
 from database.database_connection import client
 
-import states
+import bot.core.states as states
 
 
 # 6
 async def location_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from states import uniLocations
+    from bot.core.states import uniLocations
     from bot.core.bot_handlers import LOCATION
 
     # the ones who don't need to specify the location;
