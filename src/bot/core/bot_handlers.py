@@ -10,6 +10,7 @@ from bot.user.add import count_additions
 from bot.user.edit import count_changes, edit_conversation, edit_choise
 from bot.waqas.manage import admin
 from bot.user import guide_info
+from bot.core.callback_utility import CallbackType, callback_handler_factory
 from bot.waqas.edit import (
     update,
     quantity,
@@ -57,7 +58,9 @@ handlers = [
         ],
         states={
             CHOOSING: [
-                CallbackQueryHandler(edit_choise.edit_choice, pattern="^.{1}0"),
+                callback_handler_factory(
+                    CallbackType.EDIT_CHOICE, edit_choise.edit_choice
+                ),
             ],
             EDITING: [
                 MessageHandler(
@@ -68,7 +71,6 @@ handlers = [
         },
         fallbacks=[],
     ),
-     
     ConversationHandler(
         entry_points=[
             CommandHandler(
@@ -80,8 +82,10 @@ handlers = [
         states={
             SEARCHING: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, search.searching),
-                CallbackQueryHandler(add_choice.choosing, pattern="^.{0}D"),
-                CallbackQueryHandler(choose_variant.choose_variant, pattern="^.{0}M"),
+                callback_handler_factory(CallbackType.ADD_CHOICE, add_choice.choosing),
+                callback_handler_factory(
+                    CallbackType.CHOOSE_VARIANT, choose_variant.choose_variant
+                ),
             ],
             COUNTING: [
                 MessageHandler(
@@ -105,13 +109,21 @@ handlers = [
         ],
         states={
             SHOW_LOCATIONS: [
-                CallbackQueryHandler(choose_location.choose_location, pattern="^.{0}9")
+                callback_handler_factory(
+                    CallbackType.SHOW_LOCATION, choose_location.choose_location
+                )
             ],
-            SHOW_USERS: [CallbackQueryHandler(show_users.list_users, pattern="^.{0}7")],
+            SHOW_USERS: [
+                callback_handler_factory(CallbackType.SHOW_USER, show_users.list_users)
+            ],
             CHOOSE_USER: [
-                CallbackQueryHandler(choose_user.choose_user, pattern="^.{0}2")
+                callback_handler_factory(
+                    CallbackType.CHOOSE_USER, choose_user.choose_user
+                )
             ],
-            CHOOSE_ITEM: [CallbackQueryHandler(quantity.edit_choice, pattern="^.{1}3")],
+            CHOOSE_ITEM: [
+                callback_handler_factory(CallbackType.CHOOSE_ITEM, quantity.edit_choice)
+            ],
             QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, update.edit)],
             SEND_MESSAGE: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, message.message)
@@ -125,8 +137,8 @@ handlers = [
     # for admins
     CommandHandler("begin", admin.begin, filters=filters.User(admins_list)),
     CommandHandler("end", admin.end, filters=filters.User(admins_list)),
-    CallbackQueryHandler(receipt_verification, pattern="^.{0}4"),
-    CallbackQueryHandler(validation.entering_validation, pattern="^.{1}5"),
+    callback_handler_factory(CallbackType.RECEIPT_VERIFICATION, receipt_verification),
+    callback_handler_factory(CallbackType.VALIDATION, validation.entering_validation),
     # introductory
     ConversationHandler(
         entry_points=[
@@ -137,9 +149,15 @@ handlers = [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, phone.phone_callback)
             ],
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, name.name_callback)],
-            UNI: [CallbackQueryHandler(university.location_callback, pattern="^.{0}6")],
+            UNI: [
+                callback_handler_factory(
+                    CallbackType.UNIVERSITY, university.location_callback
+                )
+            ],
             LOCATION: [
-                CallbackQueryHandler(location.location_callback, pattern="^.{0}7")
+                callback_handler_factory(
+                    CallbackType.LOCATION, location.location_callback
+                )
             ],
         },
         fallbacks=[],

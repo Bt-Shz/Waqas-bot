@@ -16,11 +16,10 @@ async def edit_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
 
     # ! [id of the product, price of that product, initial quantity]
-    from json import loads
-
-    context.user_data["wEditChoice"] = loads(update.callback_query.data)[
-        1:
-    ]  # remove the first, pattern element
+    item_id = context.callback_data.get("item_id")
+    price = context.callback_data.get("price")
+    quantity = context.callback_data.get("quantity")
+    context.user_data["wEditChoice"] = [item_id, price, quantity]
 
     await update.callback_query.message.reply_text(f"Input the quantity")
 

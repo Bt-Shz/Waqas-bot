@@ -6,6 +6,7 @@ from telegram import (
     KeyboardButton,
 )
 from telegram.ext import ContextTypes
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 # * what do the string numbers mean?
 # 1. value for the pattern
@@ -20,8 +21,18 @@ async def list_locations(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     buttons = [
         [
-            InlineKeyboardButton(text="Ma On Shan", callback_data="70"),
-            InlineKeyboardButton(text="Kowloon Tong", callback_data="71"),
+            InlineKeyboardButton(
+                text="Ma On Shan",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_USER, location_name="Ma On Shan"
+                ),
+            ),
+            InlineKeyboardButton(
+                text="Kowloon Tong",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_USER, location_name="Kowloon Tong"
+                ),
+            ),
         ]
     ]
     await update.message.reply_text(

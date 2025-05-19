@@ -55,7 +55,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(
                 chat_id=id["_id"], text=text, reply_markup=ReplyKeyboardRemove()
             )
-            import bot.core.main as main
+            import main as main
 
             main.debted.add_user_ids(int(id["_id"]))
 

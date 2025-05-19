@@ -2,6 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import bot.core.states as states
 from database.database_connection import client
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -17,16 +18,26 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         buttons = [
             [
                 InlineKeyboardButton(
-                    "Validate",
-                    callback_data=f"4{update.effective_user.id}T",
-                ),
+                    "Approve",
+                    callback_data=create_callback_data(
+                        CallbackType.RECEIPT_VERIFICATION,
+                        user_id=update.effective_user.id,
+                        action="approve",
+                    ),
+                )
+            ],
+            [
                 InlineKeyboardButton(
-                    "Cancel",
-                    callback_data=f"4{update.effective_user.id}F",
-                ),
+                    "Reject",
+                    callback_data=create_callback_data(
+                        CallbackType.RECEIPT_VERIFICATION,
+                        user_id=update.effective_user.id,
+                        action="reject",
+                    ),
+                )
             ],
         ]
-        from bot.core.main import bot
+        from main import bot
         from bot.core.states import admins_list
 
         if update.message.photo:
@@ -52,15 +63,17 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def receipt_verification(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
 
-    user_id = int(
-        update.callback_query.data[1:-1]
-    )  # remove the pattern and the status int
+    user_id = int(context.callback_data.get("user_id"))
+    action = context.callback_data.get("action")
+
     if user_id not in states.debted.user_ids:
-        await update.message.reply_text("this user was already validated.")
+        await update.callback_query.message.reply_text(
+            "This user was already validated or not marked as debted."
+        )
     else:
         # either send another/they're chillin
         states.restricted.remove_user_ids(user_id=user_id)
-        if update.callback_query.data[-1] == "T":
+        if action == "approve":
             await context.bot.send_message(
                 chat_id=user_id, text="Your receipt has been validated!"
             )
@@ -71,14 +84,18 @@ async def receipt_verification(update: Update, context: ContextTypes.DEFAULT_TYP
             client.OnlineStore.Users.update_one(
                 {"_id": user_id}, {"$set": {"TotalP": 0, "Orders": []}}
             )
-            await update.message.reply_text("You validated their receipt.")
+            await update.callback_query.message.reply_text(
+                "You validated their receipt."
+            )
 
-        else:
+        else:  # Assuming 'reject' is the other action
             await context.bot.send_message(
                 chat_id=user_id,
                 text="Your receipt has been canceled! Send the money and the proof!",
             )
-            await update.message.reply_text("You canceled their receipt.")
+            await update.callback_query.message.reply_text(
+                "You canceled their receipt."
+            )
 
 
 # data = "85291275420;Shera;58731942Y"[0:-1]

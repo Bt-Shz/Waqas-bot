@@ -18,7 +18,7 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
     if text.isdigit():
-        from bot.core.main import bot
+        from main import bot
         from database.database_connection import client
         from bson import ObjectId
 

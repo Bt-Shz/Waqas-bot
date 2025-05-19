@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -13,12 +14,12 @@ async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return -1
 
-    from json import loads, dumps
     from bson import ObjectId
     from database.database_connection import client
 
-    name, pID = loads(update.callback_query.data[1:])
-    pID = ObjectId(pID)
+    name = context.callback_data.get("product_name")
+    pID_str = context.callback_data.get("product_id")
+    pID = ObjectId(pID_str)
     buttons = []
     for variant in client.OnlineStore.Products.find_one({"_id": pID}, {"Variants": 1})[
         "Variants"
@@ -26,9 +27,11 @@ async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text=f"variant : {variant['VName']} \n price : {variant['SellP']}HK$",
-                    callback_data=f"D{dumps([str(variant['vID']),float(variant['SellP'])])}",
-                    # ! don't forget about the filter in the beggining!
+                    f"{variant.get('VName')} : {variant.get('SellP')}",
+                    callback_data=create_callback_data(
+                        CallbackType.CHOOSE_VARIANT,
+                        variant_id=variant.get("vID"),
+                    ),
                 )
             ]
         )

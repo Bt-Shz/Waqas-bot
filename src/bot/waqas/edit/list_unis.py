@@ -2,23 +2,42 @@ from telegram import (
     Update,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-
 )
 from telegram.ext import ContextTypes
-
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def list_unis(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    # gt : 0 -> users who have ordered at least something
-
     buttons = [
-        [  # [[states]]
-            InlineKeyboardButton("CityU", callback_data="90"),
-            InlineKeyboardButton("PolyU", callback_data="91"),
-            InlineKeyboardButton("HKUST", callback_data="92"),
-            InlineKeyboardButton("HKBU", callback_data="93"),
-        ]
+        [
+            InlineKeyboardButton(
+                "CityU",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_LOCATION, uni_name="CityU"
+                ),
+            ),
+            InlineKeyboardButton(
+                "PolyU",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_LOCATION, uni_name="PolyU"
+                ),
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                "HKUST",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_LOCATION, uni_name="HKUST"
+                ),
+            ),
+            InlineKeyboardButton(
+                "HKBU",
+                callback_data=create_callback_data(
+                    CallbackType.SHOW_LOCATION, uni_name="HKBU"
+                ),
+            ),
+        ],
     ]
 
     await update.message.reply_text(

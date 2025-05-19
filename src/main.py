@@ -1,9 +1,8 @@
-from database.database_connection import client
+import database.database_connection as client
 from dotenv import load_dotenv
 import os
 from telegram.ext import Application
 from telegram import Bot
-from telegram.ext import filters
 from bot.core.states import (
     debted,
     restricted,
@@ -18,7 +17,7 @@ bot = Bot(token=TOKEN)
 
 
 def init_constants():
-    users = client.OnlineStore.Users.find({}, {"_id": 1})
+    users = client.client.OnlineStore.Users.find({}, {"_id": 1})
 
     for user in users:
         verified_users.add_user_ids(int(user["_id"]))

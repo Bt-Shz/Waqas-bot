@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from database.database_connection import client
 
 import bot.core.states as states
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 # user was already in the group
@@ -32,17 +33,24 @@ async def addingUser(
 async def requestingForUser(
     update: Update, context: ContextTypes.DEFAULT_TYPE, dumping_data
 ):
-    from json import dumps
+    user_id = update.effective_user.id
 
     buttons = [
         [
             InlineKeyboardButton(
-                "Validate", callback_data=f" 5{dumps(dumping_data)}Y "
-            ),
+                "Approve",
+                callback_data=create_callback_data(
+                    CallbackType.VALIDATION, user_id=user_id, action="approve"
+                ),
+            )
+        ],
+        [
             InlineKeyboardButton(
-                "Cancel",
-                callback_data=f" 5{update.effective_user.id}N ",  # to match the above one and have same conditions
-            ),
+                "Reject",
+                callback_data=create_callback_data(
+                    CallbackType.VALIDATION, user_id=user_id, action="reject"
+                ),
+            )
         ],
     ]
     await context.bot.send_message(

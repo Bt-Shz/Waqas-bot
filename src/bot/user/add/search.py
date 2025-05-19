@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -34,9 +35,11 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
             buttons.append(
                 [
                     InlineKeyboardButton(
-                        text=f"name : {product.get('Name')}[{entry.get("VName")}] \n price : {entry.get("SellP")}HK$ \n category : {product.get("Category")}",
-                        callback_data=f"D{dumps([str(entry["vID"]), float(entry["SellP"])])}",
-                        # D = done; chose the product
+                        f"{entry.get('VName')} : {entry.get('SellP')}",
+                        callback_data=create_callback_data(
+                            CallbackType.CHOOSE_VARIANT,
+                            variant_id=entry.get("vID"),
+                        ),
                     )
                 ]
             )
@@ -48,9 +51,11 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
             buttons.append(
                 [
                     InlineKeyboardButton(
-                        text=f"name : {product.get('Name')}.\nChoose a variant",
-                        callback_data=f"M{dumps([product.get("Name"), str(product['_id'])])}",
-                        # M = more; need to specify the variant now
+                        f"{product.get('Name')}",
+                        callback_data=create_callback_data(
+                            CallbackType.ADD_CHOICE,
+                            product_id=str(product.get("_id")),
+                        ),
                     )
                 ]
             )

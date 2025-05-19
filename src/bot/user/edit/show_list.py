@@ -6,6 +6,7 @@ from telegram import (
     ReplyKeyboardMarkup,
 )
 from telegram.ext import ContextTypes
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 # username = update.message.from_user.username
@@ -19,43 +20,39 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Orders": 1,
         },
     )
-
     if orders.get("TotalP") == 0:
         await update.message.reply_text(
-            "your orders are empty, order something with the /listadd command!!",
-            ReplyKeyboardMarkup([[KeyboardButton("/listAdd")]]),
+            text="your orders are empty, order something with the listadd command",
+            reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/listAdd")]]),
         )
         return -1
 
     text = "You have ordered : \n"
     buttons = []
     for count, order in enumerate(orders.get("Orders"), start=1):
-        var = product_info.get("Variants")[0]
+
         product_info = client.OnlineStore.Products.find_one(
             {"Variants": {"$elemMatch": {"vID": order.get("ProductID")}}},
             {"Name": 1, "Variants.$": 1},
         )
-        text_part = f"{count}. {product_info.get("Name")}[{var.get("VName")}]"
-        text += f"{text_part} : price = {var.get("SellP")}$ x {order.get("Qnty")} = {var.get("SellP") * order.get("Qnty")}$ \n"
-
-        from json import dumps
+        var = product_info.get("Variants")[0]
+        text_part = f"{count}. {product_info.get('Name')}[{var.get('VName')}]"
+        text += f"{text_part} : price = {var.get('SellP')}$ x {order.get('Qnty')} = {var.get('SellP') * order.get('Qnty')}$ \n"
 
         buttons.append(
             [
                 InlineKeyboardButton(
                     text_part,
-                    callback_data=dumps(
-                        [
-                            0,
-                            str(order.get("ProductID")),
-                            float(var.get("SellP")),
-                            order.get("Qnty"),
-                        ]
+                    callback_data=create_callback_data(
+                        CallbackType.EDIT_CHOICE,
+                        product_id=str(order.get("ProductID")),
+                        sell_price=float(var.get("SellP")),
+                        quantity=order.get("Qnty"),
                     ),
                 )
             ]
         )
-    text += f"Total price : {orders.get("TotalP")}"
+    text += f"Total price : {orders.get('TotalP')}"
     await update.message.reply_text(
         text=text,
         reply_markup=InlineKeyboardMarkup(buttons),

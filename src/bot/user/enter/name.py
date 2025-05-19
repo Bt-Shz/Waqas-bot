@@ -1,18 +1,41 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from bot.core.callback_utility import create_callback_data, CallbackType
 
 
 async def name_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from bot.core.states import verified_users, admins_list
-    from bot.core.main import bot
+    from main import bot
 
     buttons = [
-        [  # [[states]]
-            InlineKeyboardButton("CityU", callback_data="60"),
-            InlineKeyboardButton("PolyU", callback_data="61"),
-            InlineKeyboardButton("HKUST", callback_data="62"),
-            InlineKeyboardButton("HKBU", callback_data="63"),
-        ]
+        [
+            InlineKeyboardButton(
+                "CityU",
+                callback_data=create_callback_data(
+                    CallbackType.UNIVERSITY, uni_name="CityU"
+                ),
+            ),
+            InlineKeyboardButton(
+                "PolyU",
+                callback_data=create_callback_data(
+                    CallbackType.UNIVERSITY, uni_name="PolyU"
+                ),
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                "HKUST",
+                callback_data=create_callback_data(
+                    CallbackType.UNIVERSITY, uni_name="HKUST"
+                ),
+            ),
+            InlineKeyboardButton(
+                "HKBU",
+                callback_data=create_callback_data(
+                    CallbackType.UNIVERSITY, uni_name="HKBU"
+                ),
+            ),
+        ],
     ]
     if context.user_data["phone"][-1] == "T":
         # user was already in the whatsapp group
