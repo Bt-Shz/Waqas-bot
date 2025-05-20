@@ -1,7 +1,6 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bson import ObjectId
 
 # ! Constant ones that are always going to be true:
 """
@@ -24,49 +23,49 @@ async def counting(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("This isn't a number. Try again.")
         return
 
-    from database.connection import client
-
     qnty = int(qnty)
     if qnty <= 0:
         await update.message.reply_text("Only positive integers")
         return
     if qnty > 1000:
         await update.message.reply_text(
-            "Stop playing with me. You can't handle this much lol."
+            "This quantity is too large. Please reduce it."
         )
         return
 
     from json import loads
-
-    vID, price = loads(context.user_data["chosen_order"])
-    db = client.OnlineStore.Users
-    result = db.update_one(  # if it finds, it updates
-        {
-            "_id": update.effective_user.id,
-            "Orders.ProductID": ObjectId(vID),
-        },
-        {
-            "$inc": {"Orders.$.Qnty": qnty, "TotalP": (qnty * price)},
-        },
+    from database.user_services import (
+        increment_product_quantity_in_order,
+        add_product_to_order,
     )
 
-    if (
-        result.matched_count == 0
-    ):  # if it updated nothing - the firt time ordering this; no input of this yet -, then it will add it.
-        db.update_one(
-            {"_id": update.effective_user.id},
-            {
-                "$push": {
-                    "Orders": {
-                        "ProductID": ObjectId(vID),
-                        "Qnty": qnty,
-                    }
-                },
-                "$inc": {"TotalP": (qnty * price)},
-            },
-        )
+    vID_str, price_per_item = loads(context.user_data["chosen_order"])
 
-        await update.message.reply_text(f"Order's added ✅")
+    total_price_increment = qnty * price_per_item
+
+    matched_count = increment_product_quantity_in_order(
+        user_id=update.effective_user.id,
+        product_id_str=vID_str,
+        quantity_to_add=qnty,
+        total_price_increment=total_price_increment,
+    )
+
+    if matched_count == 0:
+        # If it updated nothing (item not in order yet), then add it.
+        add_success = add_product_to_order(
+            user_id=update.effective_user.id,
+            product_id_str=vID_str,
+            quantity=qnty,
+            total_price_increment=total_price_increment,
+        )
+        if add_success:
+            await update.message.reply_text(f"Order's added ✅")
+        else:
+            # This case should ideally not happen if increment failed due to non-existence
+            # and then add somehow also fails. Log error or notify user.
+            await update.message.reply_text(
+                f"Failed to add the order. Please try again. 🆘"
+            )
     else:
         await update.message.reply_text(
             f"The list already contained this item; the quantity has been increased by {qnty} ✅"

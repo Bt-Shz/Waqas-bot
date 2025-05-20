@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 
-async def choosing(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def add_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.callback_query.answer()
 
@@ -12,8 +12,13 @@ async def choosing(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return -1
     from bot.core.bot_handlers import COUNTING
+    from json import dumps
 
-    context.user_data["chosen_order"] = context.callback_data.get("variant_id")
-    # why? Cause the first char = pattern for CQH
+    context.user_data["chosen_order"] = dumps(
+        [
+            context.callback_data[0],  # variant_id
+            context.callback_data[1],  # price_per_item
+        ]
+    )
     await update.callback_query.message.reply_text(f"Input the quantity")
     return COUNTING

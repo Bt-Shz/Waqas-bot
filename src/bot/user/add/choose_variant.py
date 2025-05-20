@@ -15,8 +15,8 @@ async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return -1
 
-    name = context.callback_data.get("product_name")
-    pID_str = context.callback_data.get("product_id")
+    product_name = context.callback_data[0]  # product_name
+    pID_str = context.callback_data[1]  # product_id
 
     buttons = []
     variants = get_product_with_variants(pID_str)
@@ -27,14 +27,14 @@ async def choose_variant(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 InlineKeyboardButton(
                     f"{variant.get('VName')} : {variant.get('SellP')}",
                     callback_data=create_callback_data(
-                        CallbackType.CHOOSE_VARIANT,
-                        variant_id=variant.get("vID"),
+                        CallbackType.ADD_CHOICE,
+                        variant.get("vID"),  # variant_id
+                        variant.get("SellP"),  # price_per_item
                     ),
                 )
             ]
         )
     await update.callback_query.message.reply_text(
-        text=f"Choose the variant of the {name}",
+        text=f"Choose the variant of the {product_name}",
         reply_markup=InlineKeyboardMarkup(buttons),
     )
-    return SEARCHING

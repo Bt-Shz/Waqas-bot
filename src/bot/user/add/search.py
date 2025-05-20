@@ -27,14 +27,22 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # no variants; choose the product right away
         if len(product["Variants"]) == 1:
             entry = product["Variants"][0]
+            print(
+                create_callback_data(
+                    CallbackType.ADD_CHOICE,
+                    entry.get("vID"),  # variant_id
+                    entry.get("SellP"),  # price_per_item
+                )
+            )
             # Single variant - show the variant name and price
             buttons.append(
                 [
                     InlineKeyboardButton(
                         f"{entry.get('VName')} : {entry.get('SellP')}",
                         callback_data=create_callback_data(
-                            CallbackType.CHOOSE_VARIANT,
-                            variant_id=entry.get("vID"),  # vID is already a string
+                            CallbackType.ADD_CHOICE,
+                            entry.get("vID"),  # variant_id
+                            entry.get("SellP"),  # price_per_item
                         ),
                     )
                 ]
@@ -42,18 +50,25 @@ async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # choose the product and then its variants
         else:
             # Multiple variants - show just the product name
+            print(
+                create_callback_data(
+                    CallbackType.CHOOSE_VARIANT,
+                    product.get("Name"),  # product_name
+                    product.get("_id"),  # product_id
+                )
+            )
             buttons.append(
                 [
                     InlineKeyboardButton(
                         f"{product.get('Name')}",
                         callback_data=create_callback_data(
-                            CallbackType.ADD_CHOICE,
-                            product_id=product.get("_id"),  # _id is already a string
+                            CallbackType.CHOOSE_VARIANT,
+                            product.get("Name"),  # product_name
+                            product.get("_id"),  # product_id
                         ),
                     )
                 ]
             )
-            # M = more; need to specify the variant now
 
     await update.message.reply_text(
         "Search results:", reply_markup=InlineKeyboardMarkup(buttons)
