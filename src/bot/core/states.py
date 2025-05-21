@@ -1,4 +1,6 @@
 from telegram.ext import filters
+import functools
+from telegram import Update
 
 admins_list = (1048872421, 1)  # first one will receive verifications
 
@@ -26,3 +28,23 @@ uniLocations = [
     # Education U + villages ( location + connect it with CU Mos)
     # Sai Kung ( add additional question of giving full address or village name)
 ]
+
+
+def check_list_state(handler_func):
+    @functools.wraps(handler_func)
+    async def wrapper(update: Update, context, *args, **kwargs):
+        if not context.bot_data.get("list_state"):
+            reply_target = None
+            if update.callback_query:
+                reply_target = update.callback_query.message
+            elif update.message:
+                reply_target = update.message
+
+            if reply_target:
+                await reply_target.reply_text(
+                    "Stopped the list creation process. Wait for the next time."
+                )
+            return -1
+        return await handler_func(update, context, *args, **kwargs)
+
+    return wrapper

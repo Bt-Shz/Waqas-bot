@@ -1,4 +1,4 @@
-from connection import client
+from .connection import client
 from bson import ObjectId
 
 

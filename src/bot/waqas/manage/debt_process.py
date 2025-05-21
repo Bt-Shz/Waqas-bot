@@ -1,10 +1,12 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import bot.core.states as states
-from database.connection import client
+from database.user_services import reset_user_orders_and_total_price
 from bot.core.callback_utility import create_callback_data, CallbackType
+from bot.core.states import check_list_state
 
 
+@check_list_state
 async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # print([u.message.photo for u in update if u.message.photo])
@@ -21,8 +23,8 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Approve",
                     callback_data=create_callback_data(
                         CallbackType.RECEIPT_VERIFICATION,
-                        user_id=update.effective_user.id,
-                        action="approve",
+                        update.effective_user.id,  # user_id
+                        "approve",  # action
                     ),
                 )
             ],
@@ -31,8 +33,8 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Reject",
                     callback_data=create_callback_data(
                         CallbackType.RECEIPT_VERIFICATION,
-                        user_id=update.effective_user.id,
-                        action="reject",
+                        update.effective_user.id,  # user_id
+                        "reject",  # action
                     ),
                 )
             ],
@@ -60,11 +62,12 @@ async def image_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Please send an image of the receipt instead.")
 
 
+@check_list_state
 async def receipt_verification(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer()
 
-    user_id = int(context.callback_data.get("user_id"))
-    action = context.callback_data.get("action")
+    user_id = int(context.callback_data[0])  # user_id
+    action = context.callback_data[1]  # action
 
     if user_id not in states.debted.user_ids:
         await update.callback_query.message.reply_text(
@@ -81,12 +84,14 @@ async def receipt_verification(update: Update, context: ContextTypes.DEFAULT_TYP
             states.debted.remove_user_ids(user_id=user_id)
             # clean db
 
-            client.OnlineStore.Users.update_one(
-                {"_id": user_id}, {"$set": {"TotalP": 0, "Orders": []}}
-            )
-            await update.callback_query.message.reply_text(
-                "You validated their receipt."
-            )
+            if reset_user_orders_and_total_price(user_id):
+                await update.callback_query.message.reply_text(
+                    "You validated their receipt. User data reset."
+                )
+            else:
+                await update.callback_query.message.reply_text(
+                    "You validated their receipt, but failed to reset user data in DB."
+                )
 
         else:  # Assuming 'reject' is the other action
             await context.bot.send_message(

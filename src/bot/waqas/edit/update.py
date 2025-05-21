@@ -11,73 +11,64 @@ from telegram.ext import (
 )
 import asyncio
 from bson import ObjectId
+from database.user_services import (
+    remove_product_from_order,
+    set_product_quantity_in_order,
+    get_user_name,
+)
+from bot.core.states import check_list_state
 
 
 # update contains amount of id they want to change to
+@check_list_state
 async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
     if text.isdigit():
         from main import bot
-        from database.connection import client
-        from bson import ObjectId
 
         text = int(text)  # qnty
         if text < 0:
             await update.message.reply_text("Only positive integers")
         elif text > 50:
             await update.message.reply_text("That's too much :v")
-        db = client.OnlineStore.Users
-        item_name = db.find_one(
-            {"_id": int(context.user_data["picked_user"])}, {"Name": 1}
-        )
-        if text == 0:
-            db.update_one(
-                {"_id": context.user_data["picked_user"]},
-                {
-                    "$pull": {
-                        "Orders": {
-                            "ProductID": ObjectId(context.user_data["wEditChoice"][0])
-                        }
-                    },
-                    "$inc": {
-                        "TotalP": -(
-                            context.user_data["wEditChoice"][2]
-                            * context.user_data["wEditChoice"][1]
-                        )
-                    },
-                },
-            )
-            await update.message.reply_text("successfully deleted the item!")
-            await bot.send_message(
-                chat_id=context.user_data["picked_user"],
-                text=f"Waqas deleted the {item_name} from your order.",
-            )
-        else:
 
-            db.update_one(
-                {
-                    "_id": context.user_data["picked_user"],  # specific user's
-                    "Orders.ProductID": ObjectId(
-                        context.user_data["wEditChoice"][0]
-                    ),  # product
-                },
-                {
-                    "$set": {
-                        "Orders.$.Qnty": text
-                    },  # change the quantity to the matching one
-                    "$inc": {
-                        "TotalP": (text - context.user_data["wEditChoice"][2])
-                        * context.user_data["wEditChoice"][1]
-                    },  # += (new_quantity - old_quantity)*price
-                },
-            )
-            await update.message.reply_text("successfully changed the quantity!")
-            await bot.send_message(
-                chat_id=context.user_data["picked_user"],
-                text=f"Waqas changed the quantity of the {item_name} from the {context.user_data["wEditChoice"][2]} to the {text}, in your order.",
-            )
-            # is putting the below 2 outside of the if statements - correct?
+        picked_user_id = int(context.user_data["picked_user"])
+        product_id_str = context.user_data["wEditChoice"][0]
+        price_per_item = context.user_data["wEditChoice"][1]
+        old_quantity = context.user_data["wEditChoice"][2]
+
+        user_name_for_notification = get_user_name(picked_user_id)
+
+        if text == 0:
+            if remove_product_from_order(
+                user_id=picked_user_id,
+                product_id_str=product_id_str,
+                quantity_of_removed_item=old_quantity,
+                price_per_item=price_per_item,
+            ):
+                await update.message.reply_text("successfully deleted the item!")
+                await bot.send_message(
+                    chat_id=picked_user_id,
+                    text=f"Waqas deleted an item from your order.",
+                )
+            else:
+                await update.message.reply_text("Failed to delete the item.")
+        else:
+            if set_product_quantity_in_order(
+                user_id=picked_user_id,
+                product_id_str=product_id_str,
+                new_quantity=text,
+                old_quantity=old_quantity,
+                price_per_item=price_per_item,
+            ):
+                await update.message.reply_text("successfully changed the quantity!")
+                await bot.send_message(
+                    chat_id=picked_user_id,
+                    text=f"Waqas changed the quantity of an item from {old_quantity} to {text} in your order.",
+                )
+            else:
+                await update.message.reply_text("Failed to change the quantity.")
 
         from bot.core.bot_handlers import SEND_MESSAGE
 

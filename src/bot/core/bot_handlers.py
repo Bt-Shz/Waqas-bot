@@ -82,7 +82,9 @@ handlers = [
         states={
             SEARCHING: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, search.searching),
-                callback_handler_factory(CallbackType.ADD_CHOICE, add_choice.choosing),
+                callback_handler_factory(
+                    CallbackType.ADD_CHOICE, add_choice.add_choice
+                ),
                 callback_handler_factory(
                     CallbackType.CHOOSE_VARIANT, choose_variant.choose_variant
                 ),

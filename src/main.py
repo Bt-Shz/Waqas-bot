@@ -1,4 +1,4 @@
-import database.connection as client
+from database.user_services import get_all_user_ids
 from dotenv import load_dotenv
 import os
 from telegram.ext import Application
@@ -15,11 +15,9 @@ bot = Bot(token=TOKEN)
 
 
 def init_constants():
-
-    users = client.client.OnlineStore.Users.find({}, {"_id": 1})
-
-    for user in users:
-        verified_users.add_user_ids(int(user["_id"]))
+    all_user_ids = get_all_user_ids()
+    for user_id_val in all_user_ids:
+        verified_users.add_user_ids(user_id_val)
 
 
 def main():

@@ -8,20 +8,16 @@ from telegram import (
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
 from database.product_services import get_product_info_by_variant_id
+from database.user_services import get_user_orders_and_total_price
+from bot.core.states import check_list_state
 
 
 # username = update.message.from_user.username
+@check_list_state
 async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    from database.connection import client
+    orders_data = get_user_orders_and_total_price(update.effective_user.id)
 
-    orders = client.OnlineStore.Users.find_one(
-        {"_id": update.effective_user.id},
-        {
-            "TotalP": 1,
-            "Orders": 1,
-        },
-    )
-    if orders.get("TotalP") == 0:
+    if not orders_data or orders_data.get("TotalP") == 0:
         await update.message.reply_text(
             text="your orders are empty, order something with the listadd command",
             reply_markup=ReplyKeyboardMarkup([[KeyboardButton("/listAdd")]]),
@@ -30,10 +26,8 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = "You have ordered : \n"
     buttons = []
-    for count, order in enumerate(orders.get("Orders"), start=1):
-        product_variant_info = get_product_info_by_variant_id(
-            str(order.get("ProductID"))
-        )
+    for count, order in enumerate(orders_data.get("Orders", []), start=1):
+        product_variant_info = get_product_info_by_variant_id(order.get("ProductID"))
 
         if product_variant_info:
             product_name = product_variant_info.get("Name")
@@ -47,9 +41,9 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         text_part,
                         callback_data=create_callback_data(
                             CallbackType.EDIT_CHOICE,
-                            product_id=str(order.get("ProductID")),
-                            sell_price=float(var.get("SellP")),
-                            quantity=order.get("Qnty"),
+                            order.get("ProductID"),  # product_id
+                            float(var.get("SellP")),  # sell_price
+                            order.get("Qnty"),  # quantity
                         ),
                     )
                 ]
@@ -57,7 +51,7 @@ async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             text += f"{count}. [Product not found for ID: {order.get('ProductID')}]\n"
 
-    text += f"Total price : {orders.get('TotalP')}"
+    text += f"Total price : {orders_data.get('TotalP')}"
     await update.message.reply_text(
         text=text,
         reply_markup=InlineKeyboardMarkup(buttons),

@@ -3,10 +3,12 @@ from telegram.ext import ContextTypes
 from database.connection import client  # Keep for Users collection access
 from database.product_services import get_product_info_by_variant_id
 from bot.core.callback_utility import create_callback_data, CallbackType
+from bot.core.states import check_list_state
 
 
+@check_list_state
 async def choose_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    context.user_data["picked_user"] = int(context.callback_data.get("user_id"))
+    context.user_data["picked_user"] = int(context.callback_data[0])  # user_id
     await update.callback_query.answer()
 
     for order in context.user_data["Orders"]:
@@ -32,9 +34,9 @@ async def choose_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                         text=text_part,
                         callback_data=create_callback_data(
                             CallbackType.CHOOSE_ITEM,
-                            item_id=str(order.get("ProductID")),
-                            price=float(var.get("SellP")),
-                            quantity=order.get("Qnty"),
+                            str(order.get("ProductID")),  # item_id
+                            float(var.get("SellP")),  # price
+                            order.get("Qnty"),  # quantity
                         ),
                     )
                 ]

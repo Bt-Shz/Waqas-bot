@@ -1,16 +1,14 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.core.states import check_list_state
 
+
+@check_list_state
 async def add_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.callback_query.answer()
 
-    if not context.bot_data.get("list_state"):
-        await update.callback_query.message.reply_text(
-            "stopped the list creation process. Wait for the next time"
-        )
-        return -1
     from bot.core.bot_handlers import COUNTING
     from json import dumps
 

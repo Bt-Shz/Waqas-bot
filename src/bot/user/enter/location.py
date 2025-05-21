@@ -4,14 +4,16 @@ from telegram.ext import ContextTypes
 from database.connection import client
 
 import bot.core.states as states
+from bot.core.states import check_list_state
 
 from . import final_processing
 
 
 # 6
+@check_list_state
 async def location_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # callbackquery data is their chosen location
-    location_name = context.callback_data.get("location_name")
+    location_name = context.callback_data[0]  # location_name
     if context.user_data["phone"][-1] == "F":  # user wasn't in the group
 
         await final_processing.requestingForUser(

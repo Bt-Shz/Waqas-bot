@@ -16,8 +16,10 @@ import os
 from telegram import Bot
 
 from main import bot
+from bot.core.states import check_list_state
 
 
+@check_list_state
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await bot.send_message(
         chat_id=context.user_data["picked_user"],

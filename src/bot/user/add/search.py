@@ -2,15 +2,12 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
 from database.product_services import search_products_by_name
+from bot.core.states import check_list_state
 
 
+@check_list_state
 async def searching(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if not context.bot_data.get("list_state"):
-        await update.message.reply_text(
-            "Waqas stopped the list creation process. Wait for the next time"
-        )
-        return -1
     if len(update.message.text) < 4:
         await update.message.reply_text("Too short. Try again.")
         return

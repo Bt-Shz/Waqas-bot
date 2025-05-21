@@ -5,8 +5,10 @@ from telegram import (
 )
 from telegram.ext import ContextTypes
 from bot.core.callback_utility import create_callback_data, CallbackType
+from bot.core.states import check_list_state
 
 
+@check_list_state
 async def list_unis(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     buttons = [
@@ -14,13 +16,13 @@ async def list_unis(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton(
                 "CityU",
                 callback_data=create_callback_data(
-                    CallbackType.SHOW_LOCATION, uni_name="CityU"
+                    CallbackType.SHOW_LOCATION, 0  # uni_idx for CityU
                 ),
             ),
             InlineKeyboardButton(
                 "PolyU",
                 callback_data=create_callback_data(
-                    CallbackType.SHOW_LOCATION, uni_name="PolyU"
+                    CallbackType.SHOW_LOCATION, 1  # uni_idx for PolyU
                 ),
             ),
         ],
@@ -28,13 +30,13 @@ async def list_unis(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton(
                 "HKUST",
                 callback_data=create_callback_data(
-                    CallbackType.SHOW_LOCATION, uni_name="HKUST"
+                    CallbackType.SHOW_LOCATION, 2  # uni_idx for HKUST
                 ),
             ),
             InlineKeyboardButton(
                 "HKBU",
                 callback_data=create_callback_data(
-                    CallbackType.SHOW_LOCATION, uni_name="HKBU"
+                    CallbackType.SHOW_LOCATION, 3  # uni_idx for HKBU
                 ),
             ),
         ],

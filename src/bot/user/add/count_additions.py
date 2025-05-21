@@ -2,6 +2,8 @@ import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from bot.core.states import check_list_state
+
 # ! Constant ones that are always going to be true:
 """
 1. there's always going to be user. Only users can use this
@@ -9,14 +11,9 @@ from telegram.ext import ContextTypes
 """
 
 
+@check_list_state
 async def counting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from bot.core.bot_handlers import SEARCHING
-
-    if not context.bot_data.get("list_state"):
-        await update.message.reply_text(
-            "Waqas stopped the list creation process. Wait for the next time ⛔"
-        )
-        return -1
 
     qnty = update.message.text
     if not qnty.isdigit():
@@ -28,9 +25,7 @@ async def counting(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Only positive integers")
         return
     if qnty > 1000:
-        await update.message.reply_text(
-            "This quantity is too large. Please reduce it."
-        )
+        await update.message.reply_text("This quantity is too large. Please reduce it.")
         return
 
     from json import loads
